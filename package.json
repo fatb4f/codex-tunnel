@@ -1,0 +1,21 @@
+{
+  "name": "codex-fastmcp",
+  "version": "1.0.0",
+  "description": "Node MCP SDK bridge for codex mcp-server",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "BRIDGE_DEBUG=1 node server.js",
+    "report": "node scripts/bridge_report.js",
+    "test": "echo \"No tests\""
+  },
+  "keywords": ["mcp", "codex", "bridge", "sdk"],
+  "author": "src404",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@modelcontextprotocol/ext-apps": "^1.0.1",
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "zod": "^3.25.76"
+  }
+}

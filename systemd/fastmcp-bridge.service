@@ -1,0 +1,20 @@
+[Unit]
+Description=Node MCP SDK Codex Bridge
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=src404
+WorkingDirectory=/home/src404/src/codex-fastmcp
+EnvironmentFile=/home/src404/src/codex-fastmcp/.env
+ExecStartPre=/usr/bin/mkdir -p /home/src404/.local/state/codex/codex-fastmcp
+ExecStart=/usr/bin/node /home/src404/src/codex-fastmcp/server.js
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=fastmcp-bridge
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
