@@ -1,5 +1,5 @@
 {
-  "name": "codex-fastmcp",
+  "name": "codex-tunnel",
   "version": "1.0.0",
   "description": "Remote access bridge for Codex resume flows via Cloudflare Tunnel",
   "main": "server.js",

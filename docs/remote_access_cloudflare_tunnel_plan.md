@@ -1,7 +1,7 @@
 # Remote Access Plan: Cloudflare Tunnel Reuse
 
 ## Decision
-`codex-fastmcp` is the standalone remote-access subsystem.
+`codex-tunnel` is the standalone remote-access subsystem.
 
 ## Source Context
 - Existing Cloudflare zone and tunnel footprint from previous fastmcp deployment
@@ -16,7 +16,7 @@ Provide phone-triggered Codex resume access over Cloudflare Tunnel without expos
 - Cloudflare Access policy at edge
 
 2. Local origin
-- `codex-fastmcp` Node service on `127.0.0.1:8000`
+- `codex-tunnel` Node service on `127.0.0.1:8000`
 - Remote endpoint: `POST /remote/resume`
 - Health endpoint: `GET /remote/health`
 - No MCP endpoint in this phase

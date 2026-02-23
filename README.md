@@ -1,4 +1,4 @@
-# codex-fastmcp (Cloudflare Remote Access Bridge)
+# codex-tunnel (Cloudflare Remote Access Bridge)
 
 Remote trigger service for Codex resume flows, intended to run behind Cloudflare Tunnel.
 
@@ -11,14 +11,14 @@ Remote trigger service for Codex resume flows, intended to run behind Cloudflare
 ## Local run
 
 ```bash
-cd /home/src404/src/codex-fastmcp
+cd /home/src404/src/codex-tunnel
 npm install
 npm run start
 ```
 
 ## Config
 
-Edit `/home/src404/src/codex-fastmcp/.env`:
+Edit `/home/src404/src/codex-tunnel/.env`:
 
 - `REMOTE_HOST`, `REMOTE_PORT`
 - `REMOTE_ACCESS_TOKEN` (Bearer token for trigger auth)
@@ -61,7 +61,7 @@ npm run report
 Install:
 
 ```bash
-sudo cp /home/src404/src/codex-fastmcp/systemd/fastmcp-bridge.service /etc/systemd/system/
+sudo cp /home/src404/src/codex-tunnel/systemd/fastmcp-bridge.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now fastmcp-bridge
 ```
