@@ -23,7 +23,7 @@ Edit `/home/src404/src/codex-tunnel/.env`:
 - `REMOTE_HOST`, `REMOTE_PORT`
 - `REMOTE_ACCESS_TOKEN` (Bearer token for trigger auth)
 - `REMOTE_PROJECT_ROOT` (hard path boundary)
-- `REMOTE_RESUME_COMMAND` (default `/home/src404/.local/bin/xx.sh`)
+- `REMOTE_RESUME_COMMAND` (default `/home/src404/src/codex-tunnel/scripts/ssh-start-codex-user-service.sh`)
 - `REMOTE_TRIGGER_TIMEOUT_MS`
 - `REMOTE_RUN_LOG_PATH`
 
@@ -71,6 +71,27 @@ Check:
 ```bash
 systemctl status fastmcp-bridge --no-pager
 journalctl -u fastmcp-bridge -n 80 --no-pager
+```
+
+User service (run as `src404`) for Codex launch:
+
+```bash
+mkdir -p ~/.config/systemd/user
+cp /home/src404/src/codex-tunnel/systemd/user/codex-remote-resume.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+```
+
+SSH entrypoint script:
+
+```bash
+chmod +x /home/src404/src/codex-tunnel/scripts/ssh-start-codex-user-service.sh
+chmod +x /home/src404/src/codex-tunnel/scripts/run-codex-resume-user.sh
+```
+
+Manual test:
+
+```bash
+/home/src404/src/codex-tunnel/scripts/ssh-start-codex-user-service.sh identity-graph /home/src404/src/identity-graph
 ```
 
 ## Cloudflare Tunnel

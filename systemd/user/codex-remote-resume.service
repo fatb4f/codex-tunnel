@@ -1,0 +1,13 @@
+[Unit]
+Description=Launch Codex resume in user session
+After=default.target
+
+[Service]
+Type=oneshot
+Environment=CODEX_PROJECT_KEY=
+Environment=CODEX_PROJECT_PATH=%h/src
+Environment=CODEX_EXTRA_ARGS=
+ExecStart=/home/src404/src/codex-tunnel/scripts/run-codex-resume-user.sh
+
+[Install]
+WantedBy=default.target
