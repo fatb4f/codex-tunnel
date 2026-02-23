@@ -43,7 +43,10 @@ This script sets:
 - `CODEX_PROJECT_PATH`
 - `CODEX_EXTRA_ARGS`
 
-Then starts:
+Then starts (preferred):
+- transient user service via `app2unit` (ideal for HyprWM/UWSM)
+
+Fallback:
 - `codex-remote-resume.service`
 
 Launch command inside user session:

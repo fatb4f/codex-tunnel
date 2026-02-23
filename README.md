@@ -88,6 +88,9 @@ chmod +x /home/src404/src/codex-tunnel/scripts/ssh-start-codex-user-service.sh
 chmod +x /home/src404/src/codex-tunnel/scripts/run-codex-resume-user.sh
 ```
 
+On HyprWM/UWSM, the entrypoint prefers `app2unit` for user-session launches.
+If `app2unit` is unavailable, it falls back to static `systemctl --user start codex-remote-resume.service`.
+
 Manual test:
 
 ```bash

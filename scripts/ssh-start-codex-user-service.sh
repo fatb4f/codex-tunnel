@@ -13,6 +13,7 @@ UID_NOW="$(id -u)"
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/${UID_NOW}}"
 LOCKFILE="${XDG_RUNTIME_DIR}/codex-remote-resume.lock"
 SERVICE_NAME="codex-remote-resume.service"
+RUNNER="/home/src404/src/codex-tunnel/scripts/run-codex-resume-user.sh"
 
 if [[ -z "${PROJECT_PATH}" ]]; then
   echo "project path is required" >&2
@@ -34,11 +35,21 @@ flock -n 9 || {
   exit 1
 }
 
+if command -v app2unit >/dev/null 2>&1; then
+  app2unit -T -t service -- \
+    /usr/bin/env \
+      CODEX_PROJECT_KEY="${PROJECT_KEY}" \
+      CODEX_PROJECT_PATH="${PROJECT_PATH}" \
+      CODEX_EXTRA_ARGS="${EXTRA_ARGS_QUOTED}" \
+      "${RUNNER}"
+  echo "started app2unit service project_key=${PROJECT_KEY} project_path=${PROJECT_PATH}"
+  exit 0
+fi
+
+# Fallback: static user service
 systemctl --user set-environment \
   CODEX_PROJECT_KEY="${PROJECT_KEY}" \
   CODEX_PROJECT_PATH="${PROJECT_PATH}" \
   CODEX_EXTRA_ARGS="${EXTRA_ARGS_QUOTED}"
-
 systemctl --user start "${SERVICE_NAME}"
-
 echo "started ${SERVICE_NAME} project_key=${PROJECT_KEY} project_path=${PROJECT_PATH}"
