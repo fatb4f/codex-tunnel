@@ -1,7 +1,7 @@
 {
   "name": "codex-fastmcp",
   "version": "1.0.0",
-  "description": "Node MCP SDK bridge for codex mcp-server",
+  "description": "Remote access bridge for Codex resume flows (with optional MCP compatibility)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -9,7 +9,7 @@
     "report": "node scripts/bridge_report.js",
     "test": "echo \"No tests\""
   },
-  "keywords": ["mcp", "codex", "bridge", "sdk"],
+  "keywords": ["codex", "remote-access", "cloudflare", "bridge", "mcp"],
   "author": "src404",
   "license": "ISC",
   "type": "module",

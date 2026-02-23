@@ -1,5 +1,5 @@
 [Unit]
-Description=Node MCP SDK Codex Bridge
+Description=Codex Remote Access Bridge
 After=network-online.target
 Wants=network-online.target
 

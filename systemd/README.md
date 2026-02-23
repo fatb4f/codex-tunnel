@@ -1,6 +1,6 @@
 # Systemd setup (root)
 
-Node MCP SDK bridge service unit:
+Node remote access bridge service unit:
 - systemd/fastmcp-bridge.service
 
 Install (requires sudo):
@@ -23,6 +23,7 @@ Notes:
 - Uses /home/src404/src/codex-fastmcp/.env for CODEX_* and MCP_*.
 - Runs `/usr/bin/node /home/src404/src/codex-fastmcp/server.js`.
 - Appends stdout/stderr to `/home/src404/.local/state/codex/codex-fastmcp/bridge.log`.
+- Exposes `/remote/health` and `/remote/resume` in addition to `/mcp`.
 
 ---
 
@@ -47,3 +48,4 @@ Install (requires sudo):
 Notes:
 - Runs Caddy with /home/src404/src/codex-fastmcp/Caddyfile
 - Ensure port 80/443 are forwarded to this host
+- Caddy should proxy `/remote*` and `/mcp*` to `127.0.0.1:8000`.

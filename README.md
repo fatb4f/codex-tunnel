@@ -1,12 +1,15 @@
-# codex-fastmcp (Node SDK bridge)
+# codex-fastmcp (Remote Access Bridge)
 
-This project runs a remote MCP server over streamable HTTP and exposes one typed tool: `codex_exec`.
-The tool runs `codex exec` on the same machine with workspace path restrictions.
+This project now serves as the remote access bridge for phone-triggered Codex resume flows over Cloudflare Tunnel.
 
-## Endpoint
+It also keeps the MCP bridge endpoint available for compatibility.
 
-- MCP endpoint: `http://127.0.0.1:8000/mcp`
+## Endpoints
+
 - Health: `http://127.0.0.1:8000/`
+- Remote health: `http://127.0.0.1:8000/remote/health`
+- Remote trigger: `POST http://127.0.0.1:8000/remote/resume`
+- MCP endpoint (optional compatibility path): `http://127.0.0.1:8000/mcp`
 
 ## Local run
 
@@ -20,7 +23,7 @@ npm run start
 
 `/home/src404/src/codex-fastmcp/.env`
 
-Important values:
+Important values (bridge):
 - `MCP_HOST`, `MCP_PORT`, `MCP_PATH`
 - `CODEX_COMMAND`, `CODEX_ARGS`, `CODEX_CWD`
 - `CODEX_WORKSPACE_ROOT` (hard boundary for `cwd` input)
@@ -29,13 +32,41 @@ Important values:
 - `BRIDGE_RUN_LOG_PATH` (JSONL execution log)
 - `BRIDGE_DEBUG=1` for debug logs
 
-## Execution telemetry
+Important values (remote access):
+- `REMOTE_ACCESS_TOKEN` (Bearer token for `/remote/resume`)
+- `REMOTE_PROJECT_ROOT` (hard boundary for allowed project paths)
+- `REMOTE_RESUME_COMMAND` (default: `/home/src404/.local/bin/xx.sh`)
+- `REMOTE_TRIGGER_TIMEOUT_MS`
+- `REMOTE_RUN_LOG_PATH`
+
+## Remote trigger request
+
+```json
+{
+  "project_path": "/home/src404/src/identity-graph",
+  "project_key": "identity-graph",
+  "extra_args": []
+}
+```
+
+Auth header (recommended):
+
+```text
+Authorization: Bearer <REMOTE_ACCESS_TOKEN>
+```
+
+## Telemetry
 
 Each `codex_exec` call appends one JSON line to `BRIDGE_RUN_LOG_PATH` with:
 - request envelope (`request_id`, `cwd`, `sandbox`, `model`, `prompt_sha256`, `prompt_bytes`)
 - result summary (`exit_code`, `timed_out`, `duration_ms`)
 - extracted command telemetry (`commands[]`, token usage if available)
 - redacted output tails (`stdout_tail`, `stderr_tail`, `last_message_tail`)
+
+Each remote resume trigger appends one JSON line to `REMOTE_RUN_LOG_PATH` with:
+- request envelope (`request_id`, `project_path`, `project_key`, command/args)
+- result summary (`exit_code`, `timed_out`, `duration_ms`)
+- redacted output tails (`stdout_tail`, `stderr_tail`)
 
 Generate behavior reports:
 
@@ -66,12 +97,12 @@ journalctl -u fastmcp-bridge -n 80 --no-pager
 tail -n 80 ~/.local/state/codex/codex-fastmcp/bridge.log
 ```
 
-## Inspector test
+## MCP Inspector test (optional)
 
 ```bash
 npx @modelcontextprotocol/inspector@latest --server-url http://localhost:8000/mcp --transport http
 ```
 
-## Caddy
+## Caddy / Cloudflare
 
-Caddy reverse proxy should forward `/mcp/*` to `127.0.0.1:8000`.
+Caddy reverse proxy should forward both `/remote/*` and `/mcp/*` to `127.0.0.1:8000`.
