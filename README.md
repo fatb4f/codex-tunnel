@@ -1,15 +1,12 @@
-# codex-fastmcp (Remote Access Bridge)
+# codex-fastmcp (Cloudflare Remote Access Bridge)
 
-This project now serves as the remote access bridge for phone-triggered Codex resume flows over Cloudflare Tunnel.
-
-It also keeps the MCP bridge endpoint available for compatibility.
+Remote trigger service for Codex resume flows, intended to run behind Cloudflare Tunnel.
 
 ## Endpoints
 
-- Health: `http://127.0.0.1:8000/`
-- Remote health: `http://127.0.0.1:8000/remote/health`
-- Remote trigger: `POST http://127.0.0.1:8000/remote/resume`
-- MCP endpoint (optional compatibility path): `http://127.0.0.1:8000/mcp`
+- Health: `GET /`
+- Remote health: `GET /remote/health`
+- Remote trigger: `POST /remote/resume`
 
 ## Local run
 
@@ -21,25 +18,16 @@ npm run start
 
 ## Config
 
-`/home/src404/src/codex-fastmcp/.env`
+Edit `/home/src404/src/codex-fastmcp/.env`:
 
-Important values (bridge):
-- `MCP_HOST`, `MCP_PORT`, `MCP_PATH`
-- `CODEX_COMMAND`, `CODEX_ARGS`, `CODEX_CWD`
-- `CODEX_WORKSPACE_ROOT` (hard boundary for `cwd` input)
-- `CODEX_TIMEOUT_MS`
-- `BRIDGE_OUTPUT_MAX_BYTES`
-- `BRIDGE_RUN_LOG_PATH` (JSONL execution log)
-- `BRIDGE_DEBUG=1` for debug logs
-
-Important values (remote access):
-- `REMOTE_ACCESS_TOKEN` (Bearer token for `/remote/resume`)
-- `REMOTE_PROJECT_ROOT` (hard boundary for allowed project paths)
-- `REMOTE_RESUME_COMMAND` (default: `/home/src404/.local/bin/xx.sh`)
+- `REMOTE_HOST`, `REMOTE_PORT`
+- `REMOTE_ACCESS_TOKEN` (Bearer token for trigger auth)
+- `REMOTE_PROJECT_ROOT` (hard path boundary)
+- `REMOTE_RESUME_COMMAND` (default `/home/src404/.local/bin/xx.sh`)
 - `REMOTE_TRIGGER_TIMEOUT_MS`
 - `REMOTE_RUN_LOG_PATH`
 
-## Remote trigger request
+## Trigger request
 
 ```json
 {
@@ -49,44 +37,33 @@ Important values (remote access):
 }
 ```
 
-Auth header (recommended):
+Recommended auth header:
 
 ```text
 Authorization: Bearer <REMOTE_ACCESS_TOKEN>
 ```
 
-## Telemetry
+## Logging
 
-Each `codex_exec` call appends one JSON line to `BRIDGE_RUN_LOG_PATH` with:
-- request envelope (`request_id`, `cwd`, `sandbox`, `model`, `prompt_sha256`, `prompt_bytes`)
-- result summary (`exit_code`, `timed_out`, `duration_ms`)
-- extracted command telemetry (`commands[]`, token usage if available)
-- redacted output tails (`stdout_tail`, `stderr_tail`, `last_message_tail`)
+Each trigger appends one JSON line to `REMOTE_RUN_LOG_PATH` including:
+- request metadata (`request_id`, project path/key, command/args)
+- execution summary (`exit_code`, `timed_out`, `duration_ms`)
+- redacted output tails
 
-Each remote resume trigger appends one JSON line to `REMOTE_RUN_LOG_PATH` with:
-- request envelope (`request_id`, `project_path`, `project_key`, command/args)
-- result summary (`exit_code`, `timed_out`, `duration_ms`)
-- redacted output tails (`stdout_tail`, `stderr_tail`)
-
-Generate behavior reports:
+Generate summary report:
 
 ```bash
 npm run report
 ```
 
-Outputs:
-- `logs/bridge_behavior_report.json`
-- `logs/bridge_behavior_report.md`
-
 ## Systemd
 
-Use unit: `systemd/fastmcp-bridge.service`
+Install:
 
 ```bash
 sudo cp /home/src404/src/codex-fastmcp/systemd/fastmcp-bridge.service /etc/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl restart fastmcp-bridge
-sudo systemctl enable fastmcp-bridge
+sudo systemctl enable --now fastmcp-bridge
 ```
 
 Check:
@@ -94,15 +71,10 @@ Check:
 ```bash
 systemctl status fastmcp-bridge --no-pager
 journalctl -u fastmcp-bridge -n 80 --no-pager
-tail -n 80 ~/.local/state/codex/codex-fastmcp/bridge.log
 ```
 
-## MCP Inspector test (optional)
+## Cloudflare Tunnel
 
-```bash
-npx @modelcontextprotocol/inspector@latest --server-url http://localhost:8000/mcp --transport http
-```
+Caddy is not required.
 
-## Caddy / Cloudflare
-
-Caddy reverse proxy should forward both `/remote/*` and `/mcp/*` to `127.0.0.1:8000`.
+Point tunnel ingress directly to origin `http://127.0.0.1:<REMOTE_PORT>`.

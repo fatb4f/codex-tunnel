@@ -1,21 +1,17 @@
 {
   "name": "codex-fastmcp",
   "version": "1.0.0",
-  "description": "Remote access bridge for Codex resume flows (with optional MCP compatibility)",
+  "description": "Remote access bridge for Codex resume flows via Cloudflare Tunnel",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "BRIDGE_DEBUG=1 node server.js",
+    "dev": "REMOTE_DEBUG=1 node server.js",
     "report": "node scripts/bridge_report.js",
     "test": "echo \"No tests\""
   },
-  "keywords": ["codex", "remote-access", "cloudflare", "bridge", "mcp"],
+  "keywords": ["codex", "remote-access", "cloudflare", "bridge"],
   "author": "src404",
   "license": "ISC",
   "type": "module",
-  "dependencies": {
-    "@modelcontextprotocol/ext-apps": "^1.0.1",
-    "@modelcontextprotocol/sdk": "^1.26.0",
-    "zod": "^3.25.76"
-  }
+  "dependencies": {}
 }

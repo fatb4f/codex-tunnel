@@ -4,9 +4,9 @@ import path from "node:path";
 
 function parseArgs(argv) {
   const out = {
-    in: path.resolve("logs/bridge_runs.jsonl"),
-    json: path.resolve("logs/bridge_behavior_report.json"),
-    md: path.resolve("logs/bridge_behavior_report.md"),
+    in: path.resolve("logs/remote_runs.jsonl"),
+    json: path.resolve("logs/remote_behavior_report.json"),
+    md: path.resolve("logs/remote_behavior_report.md"),
   };
   for (let i = 2; i < argv.length; i += 1) {
     const a = argv[i];
@@ -28,19 +28,9 @@ function topEntries(map, limit = 15) {
     .map(([key, count]) => ({ key, count }));
 }
 
-function categorizeCommand(command) {
-  const c = command ?? "";
-  if (c.includes("/tmp/")) return "tmp";
-  if (c.includes("/home/src404/src/xtrl")) return "xtrl_repo";
-  if (c.includes("/home/src404/src")) return "src_root";
-  if (c.includes("git ")) return "git";
-  if (c.includes("pytest")) return "tests";
-  return "other";
-}
-
 function toMarkdown(report) {
   const lines = [];
-  lines.push("# Codex Bridge Behavior Report");
+  lines.push("# Codex Remote Trigger Behavior Report");
   lines.push("");
   lines.push(`- generated_at: \`${report.generated_at}\``);
   lines.push(`- log_source: \`${report.log_source}\``);
@@ -52,27 +42,32 @@ function toMarkdown(report) {
     lines.push(`- ${k}: \`${v}\``);
   }
   lines.push("");
-  lines.push("## Sandbox Distribution");
+  lines.push("## Exit Codes");
   lines.push("");
-  for (const [k, v] of Object.entries(report.sandbox_distribution)) {
+  for (const [k, v] of Object.entries(report.exit_codes)) {
     lines.push(`- ${k}: \`${v}\``);
   }
   lines.push("");
-  lines.push("## Shell Wrapper Prevalence");
+  lines.push("## Trigger Outcomes");
   lines.push("");
-  lines.push(`- shell_wrapped_commands: \`${report.shell_wrapper.shell_wrapped_commands}\``);
-  lines.push(`- total_commands: \`${report.shell_wrapper.total_commands}\``);
-  lines.push(`- ratio: \`${report.shell_wrapper.ratio}\``);
+  lines.push(`- timed_out_runs: \`${report.timed_out_runs}\``);
+  lines.push(`- failed_runs: \`${report.failed_runs}\``);
   lines.push("");
-  lines.push("## Top Commands");
+  lines.push("## Top Project Paths");
   lines.push("");
-  for (const item of report.top_commands) {
+  for (const item of report.top_project_paths) {
     lines.push(`- \`${item.key}\`: \`${item.count}\``);
   }
   lines.push("");
-  lines.push("## Path Categories");
+  lines.push("## Top Project Keys");
   lines.push("");
-  for (const [k, v] of Object.entries(report.path_categories)) {
+  for (const item of report.top_project_keys) {
+    lines.push(`- \`${item.key}\`: \`${item.count}\``);
+  }
+  lines.push("");
+  lines.push("## Command Distribution");
+  lines.push("");
+  for (const [k, v] of Object.entries(report.command_distribution)) {
     lines.push(`- ${k}: \`${v}\``);
   }
   lines.push("");
@@ -97,36 +92,35 @@ async function main() {
     }
   }
 
-  const sandboxCounts = new Map();
-  const cmdCounts = new Map();
-  const pathCounts = new Map();
+  const exitCodeCounts = new Map();
+  const projectPathCounts = new Map();
+  const projectKeyCounts = new Map();
+  const commandCounts = new Map();
   const errorCounts = new Map();
   const outcomeCounts = new Map();
-  let shellWrapped = 0;
-  let totalCommands = 0;
+  let timedOutRuns = 0;
+  let failedRuns = 0;
 
   for (const row of rows) {
-    inc(outcomeCounts, row.status ?? "unknown");
-    inc(sandboxCounts, row.sandbox ?? "unset");
-    if (row.status === "error") {
-      inc(errorCounts, row.error?.type ?? "unknown_error");
-      continue;
-    }
-    const commands = row.telemetry?.commands ?? [];
-    if (row.result?.timed_out) {
+    const exitCode = Number(row?.result?.exit_code ?? row?.exit_code ?? 1);
+    const timedOut = Boolean(row?.result?.timed_out ?? row?.timed_out ?? false);
+    const projectPath = row?.project_path ?? "<missing>";
+    const projectKey = row?.project_key ?? "<missing>";
+    const command = row?.command ?? "<missing>";
+
+    inc(outcomeCounts, row?.kind ?? "unknown");
+    inc(exitCodeCounts, String(exitCode));
+    inc(projectPathCounts, projectPath);
+    inc(projectKeyCounts, projectKey);
+    inc(commandCounts, command);
+
+    if (timedOut) {
+      timedOutRuns += 1;
       inc(errorCounts, "timed_out");
     }
-    if (Number(row.result?.exit_code ?? 0) !== 0) {
+    if (exitCode !== 0) {
+      failedRuns += 1;
       inc(errorCounts, "nonzero_exit");
-    }
-    for (const c of commands) {
-      const cmd = c.command ?? "<missing>";
-      totalCommands += 1;
-      inc(cmdCounts, cmd);
-      inc(pathCounts, categorizeCommand(cmd));
-      if (/\b(bash|sh|zsh)\s+-c\b/.test(cmd) || /\b(bash|sh|zsh)\s+-lc\b/.test(cmd)) {
-        shellWrapped += 1;
-      }
     }
   }
 
@@ -135,14 +129,12 @@ async function main() {
     log_source: args.in,
     total_runs: rows.length,
     outcomes: Object.fromEntries([...outcomeCounts.entries()].sort()),
-    sandbox_distribution: Object.fromEntries([...sandboxCounts.entries()].sort()),
-    shell_wrapper: {
-      shell_wrapped_commands: shellWrapped,
-      total_commands: totalCommands,
-      ratio: totalCommands ? Number((shellWrapped / totalCommands).toFixed(4)) : 0,
-    },
-    top_commands: topEntries(cmdCounts, 20),
-    path_categories: Object.fromEntries([...pathCounts.entries()].sort()),
+    exit_codes: Object.fromEntries([...exitCodeCounts.entries()].sort()),
+    timed_out_runs: timedOutRuns,
+    failed_runs: failedRuns,
+    top_project_paths: topEntries(projectPathCounts, 20),
+    top_project_keys: topEntries(projectKeyCounts, 20),
+    command_distribution: Object.fromEntries([...commandCounts.entries()].sort()),
     error_taxonomy: Object.fromEntries([...errorCounts.entries()].sort()),
   };
 

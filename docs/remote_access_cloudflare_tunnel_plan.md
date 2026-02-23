@@ -4,7 +4,7 @@
 `codex-fastmcp` is the standalone remote-access subsystem.
 
 ## Source Context
-- Existing hostname in use: `mcp.meowrz.uk` (`Caddyfile`)
+- Existing Cloudflare zone and tunnel footprint from previous fastmcp deployment
 - Existing WAN/router path: reuse current endpoint used for fastmcp deployment (kept outside git)
 
 ## Objective
@@ -19,6 +19,7 @@ Provide phone-triggered Codex resume access over Cloudflare Tunnel without expos
 - `codex-fastmcp` Node service on `127.0.0.1:8000`
 - Remote endpoint: `POST /remote/resume`
 - Health endpoint: `GET /remote/health`
+- No MCP endpoint in this phase
 
 3. Trigger execution
 - Validate bearer auth token (`REMOTE_ACCESS_TOKEN`)
@@ -32,7 +33,7 @@ Provide phone-triggered Codex resume access over Cloudflare Tunnel without expos
 
 ## Reuse Strategy
 1. Domain/tunnel
-- Keep existing zone/Cloudflare account used for `mcp.meowrz.uk`
+- Keep existing zone/Cloudflare account used by prior fastmcp deployment
 - Add dedicated path or host for remote trigger use
 
 2. Router/WAN
@@ -55,4 +56,3 @@ Provide phone-triggered Codex resume access over Cloudflare Tunnel without expos
 - Full remote desktop
 - Telegram/bot trigger channel
 - Early-boot (`dropbear + dracut`) access path
-
