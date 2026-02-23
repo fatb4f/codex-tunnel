@@ -94,6 +94,12 @@ Manual test:
 /home/src404/src/codex-tunnel/scripts/ssh-start-codex-user-service.sh identity-graph /home/src404/src/identity-graph
 ```
 
+The user service launches:
+
+```bash
+codex --dangerously-bypass-approvals-and-sandbox resume --last
+```
+
 ## Cloudflare Tunnel
 
 Caddy is not required.

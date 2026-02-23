@@ -45,3 +45,6 @@ This script sets:
 
 Then starts:
 - `codex-remote-resume.service`
+
+Launch command inside user session:
+- `codex --dangerously-bypass-approvals-and-sandbox resume --last`

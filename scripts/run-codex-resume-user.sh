@@ -17,7 +17,7 @@ if [[ -n "${CODEX_EXTRA_ARGS:-}" ]]; then
 else
   set --
 fi
-exec codex resume --last "$@"
+exec codex --dangerously-bypass-approvals-and-sandbox resume --last "$@"
 '
 
 if command -v xdg-terminal-exec >/dev/null 2>&1; then
