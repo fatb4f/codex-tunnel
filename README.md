@@ -108,6 +108,9 @@ codex --dangerously-bypass-approvals-and-sandbox resume --last
 Caddy is not required.
 
 Point tunnel ingress directly to origin `http://127.0.0.1:<REMOTE_PORT>`.
+Ready config templates:
+- `config/cloudflared/config.yml` (pre-filled from this host, update hostnames)
+- `config/cloudflared/config.example.yml` (generic template)
 
 ## SSH + Access hardening
 

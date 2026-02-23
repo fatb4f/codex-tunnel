@@ -39,6 +39,7 @@ This installs:
 
 Reference:
 - `config/cloudflared/config.example.yml`
+- `config/cloudflared/config.yml` (pre-filled with discovered local tunnel UUID/credentials path)
 
 Deploy:
 
@@ -46,6 +47,10 @@ Deploy:
 sudo install -m 0644 /home/src404/src/codex-tunnel/config/cloudflared/config.example.yml /etc/cloudflared/config.yml
 sudo systemctl restart cloudflared
 ```
+
+Current discovered local values:
+- tunnel UUID: `5305fd95-c7e4-4fc5-b16b-011935b957d5`
+- credentials file: `/home/src404/.cloudflared/5305fd95-c7e4-4fc5-b16b-011935b957d5.json`
 
 ## Cloudflare Access Policies
 
@@ -72,10 +77,14 @@ sudo systemctl restart cloudflared
 4. `sshd` validates certificate against `TrustedUserCAKeys`.
 5. Principal is authorized via `/etc/ssh/auth_principals/src404`.
 
+## Cloudflare short-lived certs
+Cloudflare Access can issue short-lived SSH credentials at the edge. This is complementary to local `sshd` certificate trust:
+- Cloudflare controls identity/session at edge (short TTL recommended).
+- Local `sshd` still enforces principal and CA trust on the host.
+
 ## Recommended Hardening
 - Keep `PasswordAuthentication no`.
 - Keep `PermitRootLogin no`.
 - Use short certificate validity windows.
 - Prefer forced command for automation-only keys.
 - Keep Cloudflare Access policies deny-by-default.
-

@@ -1,0 +1,12 @@
+tunnel: 5305fd95-c7e4-4fc5-b16b-011935b957d5
+credentials-file: /home/src404/.cloudflared/5305fd95-c7e4-4fc5-b16b-011935b957d5.json
+protocol: http2
+
+ingress:
+  - hostname: ssh.cloudflare-domain-info
+    service: ssh://localhost:22
+
+  - hostname: trigger.cloudflare-domain-info
+    service: http://127.0.0.1:8000
+
+  - service: http_status:404
