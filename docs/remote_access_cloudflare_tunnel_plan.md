@@ -49,7 +49,7 @@ Provide phone-triggered Codex resume access over Cloudflare Tunnel without expos
 - [x] Add remote trigger endpoint to bridge server
 - [x] Add path-boundary and bearer-token enforcement
 - [x] Add structured remote-run JSONL logging
-- [ ] Add Cloudflare Access policy runbook for this endpoint
+- [x] Add Cloudflare Access + SSH cert-auth runbook
 - [ ] Add replay tests for idempotency/lock semantics at trigger wrapper layer
 
 ## Non-Goals

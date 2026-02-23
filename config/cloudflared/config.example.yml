@@ -1,0 +1,13 @@
+tunnel: REPLACE_WITH_TUNNEL_UUID
+credentials-file: /etc/cloudflared/REPLACE_WITH_TUNNEL_UUID.json
+
+ingress:
+  # SSH over Cloudflare Tunnel + Access
+  - hostname: ssh.example.com
+    service: ssh://localhost:22
+
+  # codex-tunnel trigger API
+  - hostname: codex-trigger.example.com
+    service: http://127.0.0.1:8000
+
+  - service: http_status:404

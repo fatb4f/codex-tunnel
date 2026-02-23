@@ -108,3 +108,11 @@ codex --dangerously-bypass-approvals-and-sandbox resume --last
 Caddy is not required.
 
 Point tunnel ingress directly to origin `http://127.0.0.1:<REMOTE_PORT>`.
+
+## SSH + Access hardening
+
+For OpenSSH certificate auth and Cloudflare Access policy setup, see:
+
+- `docs/sshd_cert_auth_and_cloudflare_access.md`
+- `config/sshd/50-codex-tunnel-certauth.conf`
+- `config/cloudflared/config.example.yml`
